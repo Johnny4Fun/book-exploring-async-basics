@@ -8,11 +8,11 @@ a clear distinction between the two from the get-go.
 
 > Concurrency is about **dealing** with a lot of things at the same time.
 >
-> 并发是在同一时间段内处理许多任务
+> 并发是在一段时间内**处理**多个任务，这意味着你并不一定要同时地、并行地去执行这些任务。
 
 > Parallelism is about **doing** a lot of things at the same time.
 >
-> 并行是在同一**时间点**处理许多任务
+> 并行是在同一时间点**执行**多个任务
 
 We call the concept of progressing multiple tasks at the same time `Multitasking`.
 There are several ways to multitask. One is by **progressing** tasks concurrently,
@@ -20,7 +20,7 @@ but not at the same time. Another is to progress two tasks at the exact same tim
 
 我们把同一时间处理多个任务的概念称之为`多任务处理`。多任务处理有很多种方式。第一种是并发处理，不是在同一时间点处理。另一种是在同一时间点，同时处理两个任务。
 
-![parallel vs concurrency](./images/definitions.jpg)
+![parallel vs concurrency](./images_cn/definitions.jpg)
 
 ## Lets start off with some definitions一些基本定义
 
@@ -58,7 +58,7 @@ We say that a task is `interruptable` if it allows for this kind of concurrency.
 
 I firmly believe the main reason we find parallel and concurrent programming hard to reason about stems from how we model events in our everyday life. We tend to define these terms loosely so our intuition is often wrong.
 
-我坚信，并行和并发编程难以解释的根源在于我们在日常生活中给事件建模的方式。人们总是倾向于草率地给术语定义，以至于我们的直觉经常出错。
+我坚信，并行和并发编程难以解释的根源在于我们在日常生活中给事件建模的方式。人们总是倾向于给术语下一个宽泛的定义，以至于我们的直觉经常出错。
 
 > It doesn't help that **concurrent** is defined in the dictionary as: _operating or occurring at the same time_ which
 > doesn't really help us much when trying to describe how it differs from **parallel**
@@ -78,13 +78,13 @@ The **why** has everything to do with resource utilization and [efficiency](http
 > 效率是（通常是可测量的）避免在做某事或产生预期结果时浪费材料、精力、努力、金钱和时间的能力。
 
 
-### Parallelism
+### Parallelism并行
 
 Is increasing the resources we use to solve a task. It has nothing to do with _efficiency_.
 
 并行性需要更多完成任务所需的资源，所以它跟_效率_是两码事
 
-### Concurrency
+### Concurrency并发
 
 Has everything to do with efficiency and resource utilization. Concurrency can never make _one single task go faster_.
 It can only help us utilize our resources better and thereby _finish a set of tasks faster_.
@@ -138,11 +138,13 @@ Yes, the coffee machine is doing work while the "worker" is doing maintenance an
 > It's the same when you make a database query. After you've sent the query to the database server,
 > the CPU on the database server will be working on your request while you wait for a response. In practice, it's a way of parallelizing your work.
 >
-> 在进行数据库查询时也是如此：当你将查询请求发送给数据库服务后，数据库服务所在的服务器的CPU会处理查询请求，而你在等待请求的回应。实际上，这也是一种将工作平行化的方式。
+> 在进行数据库查询时也是如此：你将查询请求发送给数据库服务后，当你在等待响应时，数据库服务所在的服务器的CPU会处理查询请求。实际上，这也是一种将工作并行化的方式。
 
 **Concurrency is about working smarter. Parallelism is a way of throwing more resources at the problem.**
 
-**并发就是要更聪明地工作。并行性是投入更多资源来解决问题的一种方式。**
+**并发是关于如何更聪明*地工作，换一种说法就是，并发考虑的是如何更优地利用好资源以达到效率的最大化。并行性是投入更多资源来解决问题的一种方式。**
+
+**聪明*：smarter，这里可以理解为——以更优的方式利用资源。**
 
 
 ## Concurrency and its relation to I/O 并发与I/O的关系
@@ -168,9 +170,9 @@ you can work on in parallel.
     当进行I/O时，你需要等待某些外部事件的发生。
 
 2. When you need to divide your attention and prevent one task from waiting too
-  long
-
-  当你需要分散精力，防止任务等待时间过长。
+    long
+    
+3. 当你需要分散精力，防止任务等待时间过长。
 
 The first is the classic I/O example: you have to wait for a network
 call, a database query or something else to happen before you can progress a
@@ -227,16 +229,18 @@ When you write code that is perfectly synchronous from your perspective, stop fo
 
 The Operating System might not run your code from start to end at all. It might stop and resume your process many times. The CPU might get interrupted and handle some inputs while you think it's only focused on your task.
 
-操作系统可能不会将你的代码一下子从头到尾执行完，而是可能会暂停/恢复许多次。CPU可能会被中断以处理某些输入，然而你认为它被你的任务所独占。
+操作系统可能不会将你的代码一下子从头到尾执行完，而是可能会暂停/恢复许多次。CPU可能会被中断以处理某些输入，而你则认为CPU被你的任务所独占。
 
 So synchronous execution is only an illusion. But from the perspective of you as a programmer, it's not, and that is the important takeaway:
 
-所以同步执行只是一个错觉。然而，从你作为一个程序员的角度看，那不是个错觉，相反同步执行是一个非常重要的观点。
+所以同步执行只是一个错觉。然而，从你作为一个程序员的角度看，那不是个错觉，相反，同步执行是一个非常重要的观点。
 
 **When we talk about concurrency without providing any other context we are using you as a programmer and your code (your process) as the reference frame. If you start pondering about concurrency
 without keeping this in the back of your head it will get confusing very fast.**
 
-**当我们单单谈及并发，不涉及任何上下文的时候，我们往往就会把“你”来指代一个程序员，把你的代码（程序）作为参考系（思维定势）。如果你不把这一点抛到脑后，你会经常搞晕的。**
+**在之后的章节中，如果我们单单讨论并发，没有指定任何上下文/背景，那么默认把“你”指代为程序员，把你的代码（程序）作为参考系。**
+
+**在你想要解释何为并发前，你首先需要确定的一点是——现在所处的上下文是怎样的，是从操作系统、还是从程序的视角来看。否则你的思维很容易就会陷入混乱之中**
 
 The reason I spend so much time on this is that once you realize that, you'll start to see that some of the things you hear and learn that might seem contradicting really is not. You'll just have to consider the reference frame first.
 
@@ -244,4 +248,4 @@ The reason I spend so much time on this is that once you realize that, you'll st
 
 If this still sounds complicated, I understand. Just sitting and reflecting about concurrency is difficult, but if we try to keep these thoughts in the back of our head when we work with async code I promise it will get less and less confusing.
 
-如果这听起来还是很复杂，我可以理解。单纯思考并发是很困难的，但是当处理异步代码时，如果我们把这些思维定势全抛弃掉，我相信问题会变得明朗许多。
+如果这听起来还是很复杂，我可以理解。单纯思考并发是很困难的。而当和异步代码打交道时，如果我们牢记这些思维习惯，我相信问题会变得明朗许多。
