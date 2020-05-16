@@ -111,7 +111,7 @@ the CPU handles concurrency.
 >
 > The CPU offloads some work to separate "coprocessors" like the FPU for floating-point calculations leaving the main CPU ready to do other tasks et cetera.
 >
-> As a high-level overview, it's OK to model the CPU as operating in asynchronous
+> As a high-level overview, it's OK to model the CPU as operating in synchronous
 > manner, but lets for now just make a mental note that this is a model with some
 > caveats that become especially important when talking about parallelism,
 > synchronization primitives (like mutexes and atomics) and the security of computers
