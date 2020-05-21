@@ -233,7 +233,7 @@ instructions to load next.</p>
 &quot;out of order execution&quot; if it believes it makes things faster this way without
 &quot;asking&quot; or &quot;telling&quot; the programmer or the OS so you might not have any guarantee that A happens before B.</p>
 <p>The CPU offloads some work to separate &quot;coprocessors&quot; like the FPU for floating-point calculations leaving the main CPU ready to do other tasks et cetera.</p>
-<p>As a high-level overview, it's OK to model the CPU as operating in asynchronous
+<p>As a high-level overview, it's OK to model the CPU as operating in a synchronous
 manner, but lets for now just make a mental note that this is a model with some
 caveats that become especially important when talking about parallelism,
 synchronization primitives (like mutexes and atomics) and the security of computers

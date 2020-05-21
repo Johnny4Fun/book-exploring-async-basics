@@ -176,7 +176,7 @@ trivial to make a <code>syscall</code> though which we'll see below.</p>
 <p>On Linux and Macos the <code>syscall</code> we want to invoke is called <code>write</code>. Both systems operate based on the concept of <code>file descriptors</code> and <code>stdout</code> is one of these already present when you start a process.</p>
 <p><strong>On Linux a <code>write</code> syscall can look like this</strong> <br />
 (You can run the example by clicking &quot;play&quot; in the right corner)</p>
-<pre><pre class="playpen"><code class="language-rust">#![feature(asm)]
+<pre><pre class="playpen"><code class="language-rust">#![feature(llvm_asm)]
 fn main() {
     let message = String::from(&quot;Hello world from interrupt!\n&quot;);
     syscall(message);
@@ -189,7 +189,7 @@ fn syscall(message: String) {
     let len = message.len();
     
     unsafe {
-        asm!(&quot;
+        llvm_asm!(&quot;
         mov     $$1, %rax   # system call 1 is write on linux
         mov     $$1, %rdi   # file handle 1 is stdout
         mov     $0, %rsi    # address of string to output
@@ -214,7 +214,7 @@ fn syscall(message: String) {
 </blockquote>
 <p><strong>On Macos, the syscall will look something like this:</strong> <br />
 (since the Rust playground is running Linux, we can't run this example here)</p>
-<pre><pre class="playpen"><code class="language-rust no_run">#![feature(asm)]
+<pre><pre class="playpen"><code class="language-rust no_run">#![feature(llvm_asm)]
 fn main() {
     let message = String::from(&quot;Hello world from interrupt!\n&quot;);
     syscall(message);
@@ -225,7 +225,7 @@ fn syscall(message: String) {
     let msg_ptr = message.as_ptr();
     let len = message.len();
     unsafe {
-        asm!(
+        llvm_asm!(
             &quot;
         mov     $$0x2000004, %rax   # system call 0x2000004 is write on macos
         mov     $$1, %rdi           # file handle 1 is stdout
@@ -289,7 +289,7 @@ comment.</p>
 </span>#[link(name = &quot;c&quot;)]
 <span class="boring">}
 </span></code></pre></pre>
-<p>Every Linux installation comes with a version of <code>libc</code> which a C-library for communicating with the operating system. Having a <code>libc</code> with a consistent API means they can change the underlying implementation without breaking everyone's code. This flag tells the compiler to link to the &quot;c&quot; library on the system we're compiling for.</p>
+<p>Every Linux installation comes with a version of <code>libc</code> which is a C-library for communicating with the operating system. Having a <code>libc</code> with a consistent API means they can change the underlying implementation without breaking everyone's code. This flag tells the compiler to link to the &quot;c&quot; library on the system we're compiling for.</p>
 <pre><pre class="playpen"><code class="language-rust no_run">
 <span class="boring">#![allow(unused_variables)]
 </span><span class="boring">fn main() {

@@ -490,7 +490,7 @@ instructions to load next.</p>
 &quot;out of order execution&quot; if it believes it makes things faster this way without
 &quot;asking&quot; or &quot;telling&quot; the programmer or the OS so you might not have any guarantee that A happens before B.</p>
 <p>The CPU offloads some work to separate &quot;coprocessors&quot; like the FPU for floating-point calculations leaving the main CPU ready to do other tasks et cetera.</p>
-<p>As a high-level overview, it's OK to model the CPU as operating in asynchronous
+<p>As a high-level overview, it's OK to model the CPU as operating in a synchronous
 manner, but lets for now just make a mental note that this is a model with some
 caveats that become especially important when talking about parallelism,
 synchronization primitives (like mutexes and atomics) and the security of computers
@@ -553,7 +553,7 @@ trivial to make a <code>syscall</code> though which we'll see below.</p>
 <p>On Linux and Macos the <code>syscall</code> we want to invoke is called <code>write</code>. Both systems operate based on the concept of <code>file descriptors</code> and <code>stdout</code> is one of these already present when you start a process.</p>
 <p><strong>On Linux a <code>write</code> syscall can look like this</strong> <br />
 (You can run the example by clicking &quot;play&quot; in the right corner)</p>
-<pre><pre class="playpen"><code class="language-rust">#![feature(asm)]
+<pre><pre class="playpen"><code class="language-rust">#![feature(llvm_asm)]
 fn main() {
     let message = String::from(&quot;Hello world from interrupt!\n&quot;);
     syscall(message);
@@ -566,7 +566,7 @@ fn syscall(message: String) {
     let len = message.len();
     
     unsafe {
-        asm!(&quot;
+        llvm_asm!(&quot;
         mov     $$1, %rax   # system call 1 is write on linux
         mov     $$1, %rdi   # file handle 1 is stdout
         mov     $0, %rsi    # address of string to output
@@ -591,7 +591,7 @@ fn syscall(message: String) {
 </blockquote>
 <p><strong>On Macos, the syscall will look something like this:</strong> <br />
 (since the Rust playground is running Linux, we can't run this example here)</p>
-<pre><pre class="playpen"><code class="language-rust no_run">#![feature(asm)]
+<pre><pre class="playpen"><code class="language-rust no_run">#![feature(llvm_asm)]
 fn main() {
     let message = String::from(&quot;Hello world from interrupt!\n&quot;);
     syscall(message);
@@ -602,7 +602,7 @@ fn syscall(message: String) {
     let msg_ptr = message.as_ptr();
     let len = message.len();
     unsafe {
-        asm!(
+        llvm_asm!(
             &quot;
         mov     $$0x2000004, %rax   # system call 0x2000004 is write on macos
         mov     $$1, %rdi           # file handle 1 is stdout
@@ -666,7 +666,7 @@ comment.</p>
 </span>#[link(name = &quot;c&quot;)]
 <span class="boring">}
 </span></code></pre></pre>
-<p>Every Linux installation comes with a version of <code>libc</code> which a C-library for communicating with the operating system. Having a <code>libc</code> with a consistent API means they can change the underlying implementation without breaking everyone's code. This flag tells the compiler to link to the &quot;c&quot; library on the system we're compiling for.</p>
+<p>Every Linux installation comes with a version of <code>libc</code> which is a C-library for communicating with the operating system. Having a <code>libc</code> with a consistent API means they can change the underlying implementation without breaking everyone's code. This flag tells the compiler to link to the &quot;c&quot; library on the system we're compiling for.</p>
 <pre><pre class="playpen"><code class="language-rust no_run">
 <span class="boring">#![allow(unused_variables)]
 </span><span class="boring">fn main() {
@@ -930,7 +930,7 @@ fn syscall(message: String) -&gt; io::Result&lt;()&gt; {
 <p>This is a recurring problem when we're curious about how this works on three different platforms, but we need some basic understanding of how the different operating systems work under the covers.</p>
 <p>My experience, in general, is that Linux and MacOS have simpler API requiring fewer lines of code, and often (but not always) the exact same call works for both systems.</p>
 <p>Windows, on the other hand, is more complex, requires you to set up more structures to pass information (instead of using primitives), and often way more lines of code. What Windows does have is very good documentation so even though it's more work you'll also find the official documentation very helpful.</p>
-<p>This complexity why the Rust community (other languages often has something similar) gathers around crates like <a href="https://github.com/rust-lang/libc">libc</a> which already have defined most methods and constants you need.</p>
+<p>This complexity is why the Rust community (other languages often has something similar) gathers around crates like <a href="https://github.com/rust-lang/libc">libc</a> which already have defined most methods and constants you need.</p>
 <h2><a class="header" href="#a-note-about-hidden-complexity" id="a-note-about-hidden-complexity">A note about &quot;hidden&quot; complexity</a></h2>
 <p>There is a lot of &quot;hidden&quot; complexity when writing cross-platform code at this
 level. One hurdle is to get something working, which can prove to be quite a
@@ -941,7 +941,7 @@ edge cases is an additional challenge.</p>
 <h1><a class="header" href="#does-the-cpu-cooperate-with-the-operating-system" id="does-the-cpu-cooperate-with-the-operating-system">Does the CPU cooperate with the Operating System?</a></h1>
 <p>If you had asked me this question when I first thought I understood how programs work, I would most likely answer no. We run programs on the CPU and we can do whatever we want if we know how to do it. Now, first of all, I wouldn't have thought this through, but unless you learn how this work from the bottom up, it's not easy to know for sure.</p>
 <p><strong>What started to make me think I was very wrong was some code looking like this:</strong></p>
-<pre><pre class="playpen"><code class="language-rust">#![feature(asm)]
+<pre><pre class="playpen"><code class="language-rust">#![feature(llvm_asm)]
 fn main() {
     let t = 100;
     let t_ptr: *const usize = &amp;t;
@@ -953,7 +953,7 @@ fn main() {
 fn dereference(ptr: *const usize) -&gt; usize {
     let res: usize;
     unsafe {
-        asm!(&quot;mov ($1), $0&quot;:&quot;=r&quot;(res): &quot;r&quot;(ptr))
+        llvm_asm!(&quot;mov ($1), $0&quot;:&quot;=r&quot;(res): &quot;r&quot;(ptr))
         };
     res
 }
@@ -964,7 +964,7 @@ is no way the OS is involved here.</p>
 </blockquote>
 <p>As you see, this code will output <code>100</code> as expected. But let's now instead create a pointer with the address <code>99999999999999</code> which we know is invalid and see what
 happens when we pass that into the same function:</p>
-<pre><pre class="playpen"><code class="language-rust">#![feature(asm)]
+<pre><pre class="playpen"><code class="language-rust">#![feature(llvm_asm)]
 fn main() {
     let t = 99999999999999 as *const usize;
     let x = dereference(t);
@@ -974,7 +974,7 @@ fn main() {
 <span class="boring">fn dereference(ptr: *const usize) -&gt; usize {
 </span><span class="boring">    let res: usize;
 </span><span class="boring">    unsafe {
-</span><span class="boring">    asm!(&quot;mov ($1), $0&quot;:&quot;=r&quot;(res): &quot;r&quot;(ptr));
+</span><span class="boring">    llvm_asm!(&quot;mov ($1), $0&quot;:&quot;=r&quot;(res): &quot;r&quot;(ptr));
 </span><span class="boring">    }
 </span><span class="boring">
 </span><span class="boring">    res
@@ -2991,6 +2991,13 @@ your process memory (your buffer) and that will block our entire event loop.</p>
 well implemented. The only system that does this pretty good is Windows since it
 uses a <code>completion</code> based model (which means it can let you know when the data is
 read into your buffer).</p>
+<blockquote>
+<p>With the introduction of <a href="https://kernel.dk/io_uring.pdf">io_uring</a> linux has arguably made
+significant improvements in this regard, and now supports a <em>completion</em> based model as well. At the
+time of writing this book it's still early but the reports so far has been very promising. We
+might expect to see changes in the way we handle cross platform eventloops in the future due to the
+fact that there is now two major systems supporting high performance completion based models.</p>
+</blockquote>
 <p>It makes sense for a completion based model to try to do this asynchronously, but
 since the real effect are so small and the code complexity is high (especially when you're
 writing a server that is cross platform) most implementations find that using a thread pool

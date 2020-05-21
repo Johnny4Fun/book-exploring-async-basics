@@ -152,7 +152,7 @@
                         <h1><a class="header" href="#does-the-cpu-cooperate-with-the-operating-system" id="does-the-cpu-cooperate-with-the-operating-system">Does the CPU cooperate with the Operating System?</a></h1>
 <p>If you had asked me this question when I first thought I understood how programs work, I would most likely answer no. We run programs on the CPU and we can do whatever we want if we know how to do it. Now, first of all, I wouldn't have thought this through, but unless you learn how this work from the bottom up, it's not easy to know for sure.</p>
 <p><strong>What started to make me think I was very wrong was some code looking like this:</strong></p>
-<pre><pre class="playpen"><code class="language-rust">#![feature(asm)]
+<pre><pre class="playpen"><code class="language-rust">#![feature(llvm_asm)]
 fn main() {
     let t = 100;
     let t_ptr: *const usize = &amp;t;
@@ -164,7 +164,7 @@ fn main() {
 fn dereference(ptr: *const usize) -&gt; usize {
     let res: usize;
     unsafe {
-        asm!(&quot;mov ($1), $0&quot;:&quot;=r&quot;(res): &quot;r&quot;(ptr))
+        llvm_asm!(&quot;mov ($1), $0&quot;:&quot;=r&quot;(res): &quot;r&quot;(ptr))
         };
     res
 }
@@ -175,7 +175,7 @@ is no way the OS is involved here.</p>
 </blockquote>
 <p>As you see, this code will output <code>100</code> as expected. But let's now instead create a pointer with the address <code>99999999999999</code> which we know is invalid and see what
 happens when we pass that into the same function:</p>
-<pre><pre class="playpen"><code class="language-rust">#![feature(asm)]
+<pre><pre class="playpen"><code class="language-rust">#![feature(llvm_asm)]
 fn main() {
     let t = 99999999999999 as *const usize;
     let x = dereference(t);
@@ -185,7 +185,7 @@ fn main() {
 <span class="boring">fn dereference(ptr: *const usize) -&gt; usize {
 </span><span class="boring">    let res: usize;
 </span><span class="boring">    unsafe {
-</span><span class="boring">    asm!(&quot;mov ($1), $0&quot;:&quot;=r&quot;(res): &quot;r&quot;(ptr));
+</span><span class="boring">    llvm_asm!(&quot;mov ($1), $0&quot;:&quot;=r&quot;(res): &quot;r&quot;(ptr));
 </span><span class="boring">    }
 </span><span class="boring">
 </span><span class="boring">    res

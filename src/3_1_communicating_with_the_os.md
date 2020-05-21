@@ -38,7 +38,7 @@ On Linux and Macos the `syscall` we want to invoke is called `write`. Both syste
 **On Linux a `write` syscall can look like this** \
 (You can run the example by clicking "play" in the right corner)
 ```rust
-#![feature(asm)]
+#![feature(llvm_asm)]
 fn main() {
     let message = String::from("Hello world from interrupt!\n");
     syscall(message);
@@ -51,7 +51,7 @@ fn syscall(message: String) {
     let len = message.len();
     
     unsafe {
-        asm!("
+        llvm_asm!("
         mov     $$1, %rax   # system call 1 is write on linux
         mov     $$1, %rdi   # file handle 1 is stdout
         mov     $0, %rsi    # address of string to output
@@ -80,7 +80,7 @@ Secondly, we pass in the address of our string buffer and the length of the buff
 (since the Rust playground is running Linux, we can't run this example here)
 
 ```rust, no_run
-#![feature(asm)]
+#![feature(llvm_asm)]
 fn main() {
     let message = String::from("Hello world from interrupt!\n");
     syscall(message);
@@ -91,7 +91,7 @@ fn syscall(message: String) {
     let msg_ptr = message.as_ptr();
     let len = message.len();
     unsafe {
-        asm!(
+        llvm_asm!(
             "
         mov     $$0x2000004, %rax   # system call 0x2000004 is write on macos
         mov     $$1, %rdi           # file handle 1 is stdout
@@ -169,7 +169,7 @@ comment.
 #[link(name = "c")]
 ```
 
-Every Linux installation comes with a version of `libc` which a C-library for communicating with the operating system. Having a `libc` with a consistent API means they can change the underlying implementation without breaking everyone's code. This flag tells the compiler to link to the "c" library on the system we're compiling for.
+Every Linux installation comes with a version of `libc` which is a C-library for communicating with the operating system. Having a `libc` with a consistent API means they can change the underlying implementation without breaking everyone's code. This flag tells the compiler to link to the "c" library on the system we're compiling for.
 
 ```rust, no_run
 extern "C" {

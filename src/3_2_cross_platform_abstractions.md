@@ -8,7 +8,7 @@ My experience, in general, is that Linux and MacOS have simpler API requiring fe
 
 Windows, on the other hand, is more complex, requires you to set up more structures to pass information (instead of using primitives), and often way more lines of code. What Windows does have is very good documentation so even though it's more work you'll also find the official documentation very helpful.
 
-This complexity why the Rust community (other languages often has something similar) gathers around crates like [libc](https://github.com/rust-lang/libc) which already have defined most methods and constants you need.
+This complexity is why the Rust community (other languages often has something similar) gathers around crates like [libc](https://github.com/rust-lang/libc) which already have defined most methods and constants you need.
 
 ## A note about "hidden" complexity
 

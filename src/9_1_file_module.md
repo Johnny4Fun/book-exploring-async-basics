@@ -79,6 +79,12 @@ well implemented. The only system that does this pretty good is Windows since it
 uses a `completion` based model (which means it can let you know when the data is
 read into your buffer).
 
+> With the introduction of [io_uring](https://kernel.dk/io_uring.pdf) linux has arguably made
+significant improvements in this regard, and now supports a _completion_ based model as well. At the
+time of writing this book it's still early but the reports so far has been very promising. We
+might expect to see changes in the way we handle cross platform eventloops in the future due to the
+fact that there is now two major systems supporting high performance completion based models.
+
 It makes sense for a completion based model to try to do this asynchronously, but
 since the real effect are so small and the code complexity is high (especially when you're
 writing a server that is cross platform) most implementations find that using a thread pool
