@@ -42,7 +42,7 @@
 (你可以点击右上角的“Play”来运行这个例子)
 
 ```rust
-#![feature(asm)]
+#![feature(llvm_asm)]
 fn main() {
     let message = String::from("Hello world from interrupt!\n");
     syscall(message);
@@ -55,7 +55,7 @@ fn syscall(message: String) {
     let len = message.len();
     
     unsafe {
-        asm!("
+        llvm_asm!("
         mov     $$1, %rax   # system call 1 is write on linux
         mov     $$1, %rdi   # file handle 1 is stdout
         mov     $0, %rsi    # address of string to output
@@ -89,7 +89,7 @@ fn syscall(message: String) {
 (因为Rust playground运行在Linux上，所以我们不能在这里跑示例程序）
 
 ```rust, no_run
-#![feature(asm)]
+#![feature(llvm_asm)]
 fn main() {
     let message = String::from("Hello world from interrupt!\n");
     syscall(message);
@@ -100,7 +100,7 @@ fn syscall(message: String) {
     let msg_ptr = message.as_ptr();
     let len = message.len();
     unsafe {
-        asm!(
+        llvm_asm!(
             "
         mov     $$0x2000004, %rax   # system call 0x2000004 is write on macos
         mov     $$1, %rdi           # file handle 1 is stdout

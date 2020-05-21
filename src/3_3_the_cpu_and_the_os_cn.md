@@ -5,7 +5,7 @@
 **当我看到类似下面的代码时，我就意识到我错了**
 
 ```rust
-#![feature(asm)]
+#![feature(llvm_asm)]
 fn main() {
     let t = 100;
     let t_ptr: *const usize = &t;
@@ -17,7 +17,7 @@ fn main() {
 fn dereference(ptr: *const usize) -> usize {
     let res: usize;
     unsafe {
-        asm!("mov ($1), $0":"=r"(res): "r"(ptr))
+        llvm_asm!("mov ($1), $0":"=r"(res): "r"(ptr))
         };
     res
 }
@@ -28,7 +28,7 @@ fn dereference(ptr: *const usize) -> usize {
 如你所见，这段代码会输出`100`，这正如我们所预料。但是，如果我们直接创建一个指向地址`99999999999999` 的无效指针，接着把这个指针传入同样的函数，看看会有什么效果。
 
 ```rust
-#![feature(asm)]
+#![feature(llvm_asm)]
 fn main() {
     let t = 99999999999999 as *const usize;
     let x = dereference(t);
@@ -38,7 +38,7 @@ fn main() {
 # fn dereference(ptr: *const usize) -> usize {
 #     let res: usize;
 #     unsafe {
-#     asm!("mov ($1), $0":"=r"(res): "r"(ptr));
+#     llvm_asm!("mov ($1), $0":"=r"(res): "r"(ptr));
 #     }
 #
 #     res
