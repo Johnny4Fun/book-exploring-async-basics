@@ -96,7 +96,7 @@ impl Task {
 }
 ```
 We need a task object, which represents a task we want to finish in our thread
-pool. I'll go through the types in this object in a later [chapter](./7_9_infrastructure.md) so don't worry too much about them now if you find them
+pool. I'll go through the types in this object in a later [chapter](./8_9_infrastructure.md) so don't worry too much about them now if you find them
 hard to grasp. Everything will be explained.
 
 We also create an implementation of a `Close` task. We need this to clean up after ourselves and close down the thread pool.
