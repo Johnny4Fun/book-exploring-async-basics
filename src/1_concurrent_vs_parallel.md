@@ -15,8 +15,8 @@ a clear distinction between the two from the get-go.
 > 并行是在同一时间点**执行**多个任务
 
 We call the concept of progressing multiple tasks at the same time `Multitasking`.
-There are several ways to multitask. One is by **progressing** tasks concurrently,
-but not at the same time. Another is to progress two tasks at the exact same time in parallel.
+There are two ways to multitask. One is by **progressing** tasks concurrently,
+but not at the same time. Another is to progress tasks at the exact same time in parallel.
 
 我们把同一时间处理多个任务的概念称之为`多任务处理`。多任务处理有很多种方式。第一种是并发处理，不是在同一时间点处理。另一种是在同一时间点，同时处理两个任务。
 

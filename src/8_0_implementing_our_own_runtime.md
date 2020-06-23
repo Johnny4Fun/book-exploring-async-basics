@@ -96,7 +96,7 @@ impl Task {
 }
 ```
 We need a task object, which represents a task we want to finish in our thread
-pool. I'll go through the types in this object in a later [chapter](./7_9_infrastructure.md) so don't worry too much about them now if you find them
+pool. I'll go through the types in this object in a later [chapter](./8_9_infrastructure.md) so don't worry too much about them now if you find them
 hard to grasp. Everything will be explained.
 
 We also create an implementation of a `Close` task. We need this to clean up after ourselves and close down the thread pool.
@@ -109,7 +109,7 @@ It's just so we don't have to `match` or `map` on `task` all the way through our
 
 First is `NodeThread`, which represents a thread in our thread pool. As you
 see we have a `JoinHandle` (which we get when we call `thread::spawn`) and the
-sending part of a channel. This channel, sends messages of the type `Event`.
+sending part of a channel. This channel, sends messages of the type `Task`.
 
 ```rust, no_run
 #[derive(Debug)]
