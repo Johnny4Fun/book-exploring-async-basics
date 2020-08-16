@@ -19,22 +19,11 @@ fn process_epoll_events(&mut self, event_id: usize) {
 >
 > 我们不会使用这个值，而我们添加这个值的目的只是为了能够更简单地`打印`出运行时在不同时刻的状态。然而，虽然我们用不到，但记录这些事件的数量还有其他一些好处的。
 >
-> One area we're taking shortcuts on all the way here is security. If someone were
-> to build a public facing server out of this, we need to account for slow networks
-> and malicious users.
+> 之前我们一直忽略的一点——安全。如果要基于此示例代码构建一个公开的服务，我们需要考虑网络波动和恶意用户。
+> 
+> 因为使用了`IOCP`，一种基于完成情况的模型，所以我们需要为每个读/写事件的缓冲区分配空间。当把这部分内存“借”给操作系统时，我们就会处于一种尴尬的境地。尽管我们有这部分内存的所有权，但我们却不能染指这部分内存。有好几种注册事件兴趣的方法，而如果只注册兴趣，却没有事件发生，则分配出来的空间就会一直被操作系统所占据，无法为程序所使用，最终可能会导致OOM（Out of Memory）。那么如果有人想破坏我们的服务端软件，他们就可能会故意制造这样的场景。
 >
-> 之前我们一直没有考虑的一点就是安全。如果有人要基于此构建一个公开的服务，我们需要考虑网络波动和恶意用户。
->
-> Since we use `IOCP`, which is a completion based model, we allocate memory for
-> a buffer for each `Read` or `Write` event. When we lend this memory to the OS,
-> we're in a weird situation. We own it, but we can't touch it. There are several
-> ways in which we could register interest in more events than occur, and thereby
-> allocating memory that is just held in the buffers. Now if someone wanted to crash
-> our server, they could cause this intentionally.
->
-> 因为使用了`IOCP`，一种基于完成情况的模型，所以我们需要为每个读/写事件的缓冲区分配空间。当我们把这部分内存提供给操作系统时，我们就会处于一种尴尬的境地。尽管我们有这部分内存的所有权，但我们却不能染指这部分内存。有好几种方式能够注册比发生事件更多的事件的方法有若干种，内存分配发生在缓冲区中。现在，如果有人想破坏我们的服务端，那么他们就会故意制造这样的场景。
->
-> 一个比较好的做法是通过记录未完成事件的数量，然后定义一个“最高水位”。当事件数量到达该水位值时，我们就不再向操作系统注册对事件的兴趣，而是将这些事件放在事件队列中。
+> 一个比较好的做法是通过记录未完成事件的数量，然后定义一个“最高水位”。当事件数量到达最高水位时，我们就不再向操作系统注册对事件的兴趣，而是将这些事件放在事件队列中。
 >
 > 进一步说，这也是为什么我们总是应该对这些事件设置超时时间，以便在某一时刻能够回收内存并在必要时返回一个超时error。
 
